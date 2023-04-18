@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-import React, { useEffect, useState } from 'react';
-import '../styles/Carousel.scss';
+import React, { useEffect, useState } from "react";
+import "../styles/Carousel.scss";
 
 type Props = {
   images: string[];
@@ -33,13 +33,22 @@ const Carousel: React.FC<Props> = ({ images }) => {
   };
 
   const handleTransitionLeft = () => {
-    setPosition(prevPosition => prevPosition + (step * itemWidth));
+    setPosition((prevPosition) => {
+      const newPosition = prevPosition + step * itemWidth;
+
+      return Math.min(0, newPosition);
+    });
   };
 
   const maxPosition = images.length * itemWidth - itemNumber * itemWidth;
 
   const handleTransitionRight = () => {
-    setPosition(prevPosition => prevPosition - (step * itemWidth));
+    setPosition((prevPosition) => {
+      const newPosition = prevPosition - step * itemWidth;
+
+      // Math.max?
+      return Math.abs(newPosition) > maxPosition ? -maxPosition : newPosition;
+    });
   };
 
   // STYLES region
@@ -47,16 +56,16 @@ const Carousel: React.FC<Props> = ({ images }) => {
     width: `${containerWidth}px`,
     height: `${itemWidth}px`,
     transform: `translateX(${position}px)`,
-    transition: `all ${animationDuration}ms`,
+    transition: `all ${animationDuration}ms`
   };
 
   const imageStyles = {
-    width: `${itemWidth}px`,
+    width: `${itemWidth}px`
   };
   // end STYLES region
 
-  const isLastImageDisplayed = Math.abs(position) >= Number(maxPosition)
-    + itemWidth;
+  const isLastImageDisplayed = Math.abs(position) === Number(maxPosition);
+  // + itemWidth;
 
   const isFirstImageDisplayed = position === 0;
 
@@ -69,22 +78,13 @@ const Carousel: React.FC<Props> = ({ images }) => {
           onClick={handleTransitionLeft}
           disabled={isFirstImageDisplayed}
         >
-          {'<'}
+          {"<"}
         </button>
-        <div
-          className="Carousel__list"
-        >
-          <ul
-            className="Carousel__items"
-            style={imagesContainerStyles}
-          >
-            {images.map(image => (
+        <div className="Carousel__list">
+          <ul className="Carousel__items" style={imagesContainerStyles}>
+            {images.map((image) => (
               <li key={image}>
-                <img
-                  src={image}
-                  alt="1"
-                  style={imageStyles}
-                />
+                <img src={image} alt="1" style={imageStyles} />
               </li>
             ))}
           </ul>
@@ -95,16 +95,13 @@ const Carousel: React.FC<Props> = ({ images }) => {
           data-cy="next"
           onClick={handleTransitionRight}
           disabled={isLastImageDisplayed}
-        // }
+          // }
         >
-          {'>'}
+          {">"}
         </button>
       </div>
       <div className="inputs inputs__container">
-        <label
-          htmlFor="itemWidth"
-          className="inputs__labels"
-        >
+        <label htmlFor="itemWidth" className="inputs__labels">
           Item width (px):
           <input
             type="range"
@@ -117,10 +114,7 @@ const Carousel: React.FC<Props> = ({ images }) => {
           />
         </label>
 
-        <label
-          htmlFor="frameSize"
-          className="inputs__labels"
-        >
+        <label htmlFor="frameSize" className="inputs__labels">
           Items in frame:
           <input
             type="range"
@@ -132,25 +126,19 @@ const Carousel: React.FC<Props> = ({ images }) => {
           />
         </label>
 
-        <label
-          htmlFor="stepId"
-          className="inputs__labels"
-        >
+        <label htmlFor="stepId" className="inputs__labels">
           Step:
           <input
             type="range"
             id="stepId"
             min="1"
-            max="5"
+            max={itemNumber}
             value={step}
             onChange={handleStepChange}
           />
         </label>
 
-        <label
-          htmlFor="animationDuration"
-          className="inputs__labels"
-        >
+        <label htmlFor="animationDuration" className="inputs__labels">
           Animation Duration (ms):
           <input
             type="range"
@@ -186,7 +174,6 @@ const Carousel: React.FC<Props> = ({ images }) => {
             No
           </label>
         </div>
-
       </div>
     </div>
   );
